@@ -53,3 +53,22 @@ jobs:
       - store_artifacts:
           path: test-reports
           destination: test-reports
+
+      - run: bundle install --path vendor/bundle  # install dependencies
+      - run: bundle exec rake db:create db:schema:load  # setup database
+      - run:
+          name: Run tests
+          command: rake
+
+  deploy:
+    machine:
+        enabled: true
+    working_directory: ~/circleci-demo-workflows  
+    environment:
+      HEROKU_APP: "sleepy-refuge-55486"
+    steps:
+      - checkout
+      - run:
+          name: Deploy Master to Heroku
+          command: |
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP.git master
